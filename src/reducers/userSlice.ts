@@ -1,41 +1,20 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { UserState, User } from "../types";
 
 const apiUrl = "https://65a25d5942ecd7d7f0a77211.mockapi.io/users";
 
-export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
-  const response = await axios.get(apiUrl);
-  return response.data;
-});
-
-export const fetchUser = createAsyncThunk("users/fetchUser", async (userId) => {
-  const response = await axios.get(`${apiUrl}/${userId}`);
-  return response.data;
-});
-
-export const createUser = createAsyncThunk("users/createUser", async (user) => {
-  const response = await axios.post(apiUrl, user);
-  return response.data;
-});
-
-export const editUser = createAsyncThunk("users/editUser", async (user) => {
-  const response = await axios.put(`${apiUrl}/${user.id}`, user);
-  return response.data;
-});
-
-export const deleteUser = createAsyncThunk("users/deleteUser", async (userId) => {
-  await axios.delete(`${apiUrl}/${userId}`);
-  return userId;
-});
+const initialState: UserState = {
+  users: [],
+  currentUser: null,
+  loading: false,
+  error: null,
+};
 
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    users: [],
-    currentUser: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addMatcher(
@@ -47,7 +26,8 @@ const userSlice = createSlice({
       )
       .addMatcher(
         (action) => action.type.endsWith("/fulfilled"),
-        (state, action) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (state, action: PayloadAction<any>) => {
           state.loading = false;
           if (action.type.includes("fetchUsers")) {
             state.users = action.payload;
@@ -73,6 +53,31 @@ const userSlice = createSlice({
         },
       );
   },
+});
+
+export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
+  const response = await axios.get(apiUrl);
+  return response.data;
+});
+
+export const fetchUser = createAsyncThunk("users/fetchUser", async (userId: string) => {
+  const response = await axios.get(`${apiUrl}/${userId}`);
+  return response.data;
+});
+
+export const createUser = createAsyncThunk("users/createUser", async (user: User) => {
+  const response = await axios.post(apiUrl, user);
+  return response.data;
+});
+
+export const editUser = createAsyncThunk("users/editUser", async (user: User) => {
+  const response = await axios.put(`${apiUrl}/${user.id}`, user);
+  return response.data;
+});
+
+export const deleteUser = createAsyncThunk("users/deleteUser", async (userId:number) => {
+  await axios.delete(`${apiUrl}/${userId}`);
+  return userId;
 });
 
 export default userSlice.reducer;

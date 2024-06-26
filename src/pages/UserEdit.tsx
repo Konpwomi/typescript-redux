@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser, editUser, fetchUser } from "../reducers/userSlice";
 import { useNavigate } from "react-router-dom";
+import { RootState, AppDispatch} from "../store";
 
 function UserEdit() {
   const [userData, setUserData] = useState({
@@ -12,8 +13,8 @@ function UserEdit() {
   });
 
   const { id } = useParams();
-  const dispatch = useDispatch();
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const dispatch = useDispatch<AppDispatch>();
+  const currentUser = useSelector((state:RootState) => state.user.currentUser);
   const navigator = useNavigate();
 
   useEffect(() => {
@@ -33,11 +34,11 @@ function UserEdit() {
   };
 
   const handleSave = async () => {
-    const result = userData.id
+    const result = id
       ? await dispatch(editUser(userData))
       : await dispatch(createUser(userData));
 
-    if (result.success) {
+    if (editUser.fulfilled.match(result) || createUser.fulfilled.match(result)) {
       alert("User saved successfully.");
       navigator('/')
     } else {

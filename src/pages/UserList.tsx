@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../types"; // Adjust the path as needed
 import { fetchUsers, deleteUser } from "../reducers/userSlice";
+import { RootState,AppDispatch} from "../store";
 
 
 function UserList() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const users = useSelector((state: RootState) => state.user.users);
 
   useEffect(() => {
@@ -37,7 +37,11 @@ function UserList() {
           <div>
             <button
               className="mr-2 rounded bg-red-500 px-3 py-1 text-white"
-              onClick={() => dispatch(deleteUser(user.id))}
+              onClick={() => {
+                if (user.id) {
+                  dispatch(deleteUser(user.id));
+                }
+              }}
             >
               Delete
             </button>
